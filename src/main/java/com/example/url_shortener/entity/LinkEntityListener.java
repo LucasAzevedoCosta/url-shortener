@@ -1,9 +1,10 @@
 package com.example.url_shortener.entity;
 
+import java.time.Instant;
+
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreRemove;
 import jakarta.persistence.PreUpdate;
-import java.time.Instant;
 
 public class LinkEntityListener {
 
