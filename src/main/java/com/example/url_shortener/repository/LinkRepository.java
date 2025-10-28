@@ -13,6 +13,8 @@ public interface LinkRepository extends JpaRepository<Link, UUID> {
 
     Optional<Link> findByShortCode(String shortCode);
 
+    Optional<Link> findByShortCodeAndDomain_Id(String shortCode, UUID domainId);
+
     Optional<Link> findByOriginalUrl(String originalUrl);
 
     long countByDomain_Id(UUID domainId);
