@@ -11,6 +11,8 @@ import com.example.url_shortener.entity.Link;
 @Repository
 public interface LinkRepository extends JpaRepository<Link, UUID> {
 
+    boolean existsByShortCode(String shortCode);
+
     Optional<Link> findByShortCode(String shortCode);
 
     Optional<Link> findByShortCodeAndDomain_Id(String shortCode, UUID domainId);
