@@ -32,16 +32,13 @@ public class RedirectService {
     private LinkClickRepository linkClickRepository;
 
     public ResponseEntity<?> handleRedirect(String host, String shortCode, HttpServletRequest request) {
-        // Buscar domínio
         Domain domain = domainRepository.findByHost(host)
                 .filter(Domain::isActive)
                 .orElseThrow(() -> new DomainNotFoundException("Domínio inválido ou inativo: " + host));
 
-        // Buscar link correspondente
         Link link = linkRepository.findByShortCodeAndDomain_Id(shortCode, domain.getId())
                 .orElseThrow(() -> new LinkNotFoundException("Link não encontrado ou não pertence ao domínio."));
 
-        // Verificações
         if (!link.isActive()) {
             return ResponseEntity.status(HttpStatus.GONE).body("Este link foi desativado.");
         }
@@ -54,7 +51,6 @@ public class RedirectService {
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Limite de cliques atingido.");
         }
 
-        // Log de clique
         LinkClick click = new LinkClick();
         click.setLink(link);
         click.setClickedAt(Instant.now());
@@ -64,11 +60,9 @@ public class RedirectService {
 
         linkClickRepository.save(click);
 
-        // Atualizar contador
         link.setClickCount(link.getClickCount() + 1);
         linkRepository.save(link);
 
-        // Redirecionar
         return ResponseEntity.status(HttpStatus.FOUND)
                 .header(HttpHeaders.LOCATION, link.getOriginalUrl())
                 .build();
