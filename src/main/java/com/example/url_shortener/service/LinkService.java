@@ -39,10 +39,15 @@ public class LinkService {
 
         String shortCode = generateUniqueShortCode();
 
+        String originalUrl = request.getOriginalUrl().trim();
+        if (!originalUrl.startsWith("http://") && !originalUrl.startsWith("https://")) {
+            originalUrl = "https://" + originalUrl;
+        }
+
         Link link = new Link();
         link.setDomain(domain);
         link.setShortCode(shortCode);
-        link.setOriginalUrl(request.getOriginalUrl());
+        link.setOriginalUrl(originalUrl);
         link.setExpiresAt(request.getExpiresAt());
         link.setMaxClicks(request.getMaxClicks());
         link.setIsActive(true);
@@ -74,16 +79,26 @@ public class LinkService {
         Link link = linkRepository.findById(id)
                 .orElseThrow(() -> new LinkNotFoundException("Link não encontrado."));
 
-        if (request.getOriginalUrl() != null)
-            link.setOriginalUrl(request.getOriginalUrl());
-        if (request.getExpiresAt() != null)
+        if (request.getOriginalUrl() != null) {
+            String originalUrl = request.getOriginalUrl().trim();
+            if (!originalUrl.startsWith("http://") && !originalUrl.startsWith("https://")) {
+                originalUrl = "https://" + originalUrl;
+            }
+            link.setOriginalUrl(originalUrl);
+        }
+
+        if (request.getExpiresAt() != null) {
             link.setExpiresAt(request.getExpiresAt());
-        if (request.getMaxClicks() != null)
+        }
+        if (request.getMaxClicks() != null) {
             link.setMaxClicks(request.getMaxClicks());
-        if (request.getIsActive() != null)
+        }
+        if (request.getIsActive() != null) {
             link.setIsActive(request.getIsActive());
-        if (request.getPassword() != null)
+        }
+        if (request.getPassword() != null) {
             link.setPasswordHash(BCrypt.hashpw(request.getPassword(), BCrypt.gensalt()));
+        }
 
         link.setUpdatedAt(Instant.now());
         linkRepository.save(link);
@@ -120,7 +135,6 @@ public class LinkService {
     }
 
     // 🔧 Helpers
-
     private String generateUniqueShortCode() {
         String code;
         do {
