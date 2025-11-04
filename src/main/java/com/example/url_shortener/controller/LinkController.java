@@ -1,7 +1,5 @@
 package com.example.url_shortener.controller;
 
-import java.util.UUID;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -65,19 +63,19 @@ public class LinkController {
 
     // ===========================================================
     @Operation(
-            summary = "Buscar link por ID",
-            description = "Retorna os detalhes completos de um link encurtado pelo seu identificador único (UUID).",
+            summary = "Buscar link por shortCode",
+            description = "Retorna os detalhes completos de um link encurtado pelo seu shortCode.",
             responses = {
                 @ApiResponse(responseCode = "200", description = "Link encontrado",
                         content = @Content(schema = @Schema(implementation = LinkResponse.class))),
                 @ApiResponse(responseCode = "404", description = "Link não encontrado")
             }
     )
-    @GetMapping("/{id}")
-    public ResponseEntity<LinkResponse> getLinkById(
-            @Parameter(description = "ID único do link", example = "d290f1ee-6c54-4b01-90e6-d701748f0851")
-            @PathVariable UUID id) {
-        return ResponseEntity.ok(linkService.getLinkById(id));
+    @GetMapping("/{shortCode}")
+    public ResponseEntity<LinkResponse> getLinkByShortCode(
+            @Parameter(description = "ShortCode único do link", example = "abc123")
+            @PathVariable String shortCode) {
+        return ResponseEntity.ok(linkService.getLinkByShortCode(shortCode));
     }
 
     // ===========================================================
@@ -85,12 +83,12 @@ public class LinkController {
             summary = "Atualizar link",
             description = "Permite alterar a URL original, data de expiração, limite de cliques ou status de um link encurtado."
     )
-    @PutMapping("/{id}")
+    @PutMapping("/{shortCode}")
     public ResponseEntity<LinkResponse> updateLink(
-            @Parameter(description = "ID único do link a ser atualizado") @PathVariable UUID id,
+            @Parameter(description = "ShortCode do link a ser atualizado") @PathVariable String shortCode,
             @RequestBody LinkUpdateRequest request
     ) {
-        return ResponseEntity.ok(linkService.updateLink(id, request));
+        return ResponseEntity.ok(linkService.updateLink(shortCode, request));
     }
 
     // ===========================================================
@@ -102,10 +100,10 @@ public class LinkController {
                 @ApiResponse(responseCode = "404", description = "Link não encontrado")
             }
     )
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{shortCode}")
     public ResponseEntity<Void> deleteLink(
-            @Parameter(description = "ID do link a ser desativado") @PathVariable UUID id) {
-        linkService.deleteLink(id);
+            @Parameter(description = "ShortCode do link a ser desativado") @PathVariable String shortCode) {
+        linkService.deleteLink(shortCode);
         return ResponseEntity.noContent().build();
     }
 
@@ -119,9 +117,9 @@ public class LinkController {
                 @ApiResponse(responseCode = "404", description = "Link não encontrado")
             }
     )
-    @GetMapping("/{id}/stats")
+    @GetMapping("/{shortCode}/stats")
     public ResponseEntity<LinkStatsResponse> getStats(
-            @Parameter(description = "ID do link para o qual buscar estatísticas") @PathVariable UUID id) {
-        return ResponseEntity.ok(linkService.getLinkStats(id));
+            @Parameter(description = "ShortCode do link para o qual buscar estatísticas") @PathVariable String shortCode) {
+        return ResponseEntity.ok(linkService.getLinkStats(shortCode));
     }
 }

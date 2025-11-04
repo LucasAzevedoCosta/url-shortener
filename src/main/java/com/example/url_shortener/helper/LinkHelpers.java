@@ -29,10 +29,9 @@ public class LinkHelpers {
         return sb.toString();
     }
 
-    public LinkResponse toResponse(Link link) {
+    public static LinkResponse toResponse(Link link) {
         String shortUrl = "https://" + link.getDomain().getHost() + "/" + link.getShortCode();
         return new LinkResponse(
-                link.getId(),
                 link.getShortCode(),
                 shortUrl,
                 link.getOriginalUrl(),

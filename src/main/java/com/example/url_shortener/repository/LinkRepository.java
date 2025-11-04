@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import com.example.url_shortener.entity.Link;
 
 @Repository
-public interface LinkRepository extends JpaRepository<Link, UUID> {
+public interface LinkRepository extends JpaRepository<Link, String> {
 
     boolean existsByShortCode(String shortCode);
 

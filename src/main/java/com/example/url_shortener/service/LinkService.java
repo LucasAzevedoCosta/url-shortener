@@ -61,23 +61,22 @@ public class LinkService {
         }
 
         linkRepository.save(link);
-
-        return linkHelpers.toResponse(link);
+        return LinkHelpers.toResponse(link);
     }
 
     public Page<LinkResponse> listLinks(Pageable pageable) {
         return linkRepository.findAll(pageable)
-                .map(linkHelpers::toResponse);
+                .map(LinkHelpers::toResponse);
     }
 
-    public LinkResponse getLinkById(UUID id) {
-        Link link = linkRepository.findById(id)
+    public LinkResponse getLinkByShortCode(String shortCode) {
+        Link link = linkRepository.findById(shortCode)
                 .orElseThrow(() -> new LinkNotFoundException("Link não encontrado."));
-        return linkHelpers.toResponse(link);
+        return LinkHelpers.toResponse(link);
     }
 
-    public LinkResponse updateLink(UUID id, LinkUpdateRequest request) {
-        Link link = linkRepository.findById(id)
+    public LinkResponse updateLink(String shortCode, LinkUpdateRequest request) {
+        Link link = linkRepository.findById(shortCode)
                 .orElseThrow(() -> new LinkNotFoundException("Link não encontrado."));
 
         if (request.getOriginalUrl() != null) {
@@ -104,30 +103,30 @@ public class LinkService {
         link.setUpdatedAt(Instant.now());
         linkRepository.save(link);
 
-        return linkHelpers.toResponse(link);
+        return LinkHelpers.toResponse(link);
     }
 
-    public void deleteLink(UUID id) {
-        Link link = linkRepository.findById(id)
+    public void deleteLink(String shortCode) {
+        Link link = linkRepository.findById(shortCode)
                 .orElseThrow(() -> new LinkNotFoundException("Link não encontrado."));
         link.setIsActive(false);
         link.setDeletedAt(Instant.now());
         linkRepository.save(link);
     }
 
-    public LinkStatsResponse getLinkStats(UUID id) {
-        Link link = linkRepository.findById(id)
+    public LinkStatsResponse getLinkStats(String shortCode) {
+        Link link = linkRepository.findById(shortCode)
                 .orElseThrow(() -> new LinkNotFoundException("Link não encontrado."));
 
-        long totalClicks = linkClickRepository.countByLink_Id(id);
+        long totalClicks = linkClickRepository.countByLink_ShortCode(shortCode);
 
-        Optional<java.time.Instant> lastClick = linkClickRepository.findByLink_Id(id)
+        Optional<Instant> lastClick = linkClickRepository.findByLink_ShortCode(shortCode)
                 .stream()
                 .map(c -> c.getClickedAt())
-                .max(java.time.Instant::compareTo);
+                .max(Instant::compareTo);
 
         return new LinkStatsResponse(
-                link.getId(),
+                link.getShortCode(),
                 totalClicks,
                 lastClick.orElse(null),
                 link.getCreatedAt(),
