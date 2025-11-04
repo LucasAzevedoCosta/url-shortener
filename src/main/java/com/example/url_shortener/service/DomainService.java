@@ -13,6 +13,7 @@ import com.example.url_shortener.dto.DomainUpdateRequest;
 import com.example.url_shortener.entity.Domain;
 import com.example.url_shortener.exception.DomainAlreadyExistsException;
 import com.example.url_shortener.exception.DomainNotFoundException;
+import com.example.url_shortener.helper.DomainHelpers;
 import com.example.url_shortener.repository.DomainRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -35,20 +36,20 @@ public class DomainService {
         domain.setUpdatedAt(Instant.now());
 
         domainRepository.save(domain);
-        return toResponse(domain);
+        return DomainHelpers.toResponse(domain);
     }
 
     public List<DomainResponse> listDomains() {
         return domainRepository.findAll()
                 .stream()
-                .map(this::toResponse)
+                .map(DomainHelpers::toResponse)
                 .collect(Collectors.toList());
     }
 
     public DomainResponse getDomainById(UUID id) {
         Domain domain = domainRepository.findById(id)
                 .orElseThrow(() -> new DomainNotFoundException("Domínio não encontrado."));
-        return toResponse(domain);
+        return DomainHelpers.toResponse(domain);
     }
 
     public DomainResponse updateDomain(UUID id, DomainUpdateRequest request) {
@@ -62,7 +63,7 @@ public class DomainService {
         domain.setUpdatedAt(Instant.now());
         domainRepository.save(domain);
 
-        return toResponse(domain);
+        return DomainHelpers.toResponse(domain);
     }
 
     public void deleteDomain(UUID id) {
@@ -72,17 +73,5 @@ public class DomainService {
         domain.setActive(false);
         domain.setUpdatedAt(Instant.now());
         domainRepository.save(domain);
-    }
-
-    // =========================================================
-    // 🔧 Helper
-
-    private DomainResponse toResponse(Domain domain) {
-        return new DomainResponse(
-                domain.getId(),
-                domain.getHost(),
-                domain.isActive(),
-                domain.getCreatedAt()
-        );
     }
 }

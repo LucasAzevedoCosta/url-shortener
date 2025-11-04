@@ -3,7 +3,6 @@ package com.example.url_shortener.service;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ThreadLocalRandom;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +17,7 @@ import com.example.url_shortener.entity.Domain;
 import com.example.url_shortener.entity.Link;
 import com.example.url_shortener.exception.DomainNotFoundException;
 import com.example.url_shortener.exception.LinkNotFoundException;
+import com.example.url_shortener.helper.LinkHelpers;
 import com.example.url_shortener.repository.DomainRepository;
 import com.example.url_shortener.repository.LinkClickRepository;
 import com.example.url_shortener.repository.LinkRepository;
@@ -31,13 +31,14 @@ public class LinkService {
     private final LinkRepository linkRepository;
     private final DomainRepository domainRepository;
     private final LinkClickRepository linkClickRepository;
+    private final LinkHelpers linkHelpers;
 
     public LinkResponse createLink(LinkCreateRequest request) {
         Domain domain = domainRepository.findById(UUID.fromString(request.getDomainId()))
                 .filter(Domain::isActive)
                 .orElseThrow(() -> new DomainNotFoundException("Domínio não encontrado ou inativo."));
 
-        String shortCode = generateUniqueShortCode();
+        String shortCode = linkHelpers.generateUniqueShortCode(linkRepository);
 
         String originalUrl = request.getOriginalUrl().trim();
         if (!originalUrl.startsWith("http://") && !originalUrl.startsWith("https://")) {
@@ -61,18 +62,18 @@ public class LinkService {
 
         linkRepository.save(link);
 
-        return toResponse(link);
+        return linkHelpers.toResponse(link);
     }
 
     public Page<LinkResponse> listLinks(Pageable pageable) {
         return linkRepository.findAll(pageable)
-                .map(this::toResponse);
+                .map(linkHelpers::toResponse);
     }
 
     public LinkResponse getLinkById(UUID id) {
         Link link = linkRepository.findById(id)
                 .orElseThrow(() -> new LinkNotFoundException("Link não encontrado."));
-        return toResponse(link);
+        return linkHelpers.toResponse(link);
     }
 
     public LinkResponse updateLink(UUID id, LinkUpdateRequest request) {
@@ -103,7 +104,7 @@ public class LinkService {
         link.setUpdatedAt(Instant.now());
         linkRepository.save(link);
 
-        return toResponse(link);
+        return linkHelpers.toResponse(link);
     }
 
     public void deleteLink(UUID id) {
@@ -120,10 +121,10 @@ public class LinkService {
 
         long totalClicks = linkClickRepository.countByLink_Id(id);
 
-        Optional<Instant> lastClick = linkClickRepository.findByLink_Id(id)
+        Optional<java.time.Instant> lastClick = linkClickRepository.findByLink_Id(id)
                 .stream()
                 .map(c -> c.getClickedAt())
-                .max(Instant::compareTo);
+                .max(java.time.Instant::compareTo);
 
         return new LinkStatsResponse(
                 link.getId(),
@@ -131,37 +132,6 @@ public class LinkService {
                 lastClick.orElse(null),
                 link.getCreatedAt(),
                 link.getOriginalUrl()
-        );
-    }
-
-    // 🔧 Helpers
-    private String generateUniqueShortCode() {
-        String code;
-        do {
-            code = randomCode(6);
-        } while (linkRepository.existsByShortCode(code));
-        return code;
-    }
-
-    private String randomCode(int len) {
-        String chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        StringBuilder sb = new StringBuilder(len);
-        for (int i = 0; i < len; i++) {
-            int idx = ThreadLocalRandom.current().nextInt(chars.length());
-            sb.append(chars.charAt(idx));
-        }
-        return sb.toString();
-    }
-
-    private LinkResponse toResponse(Link link) {
-        String shortUrl = "https://" + link.getDomain().getHost() + "/" + link.getShortCode();
-        return new LinkResponse(
-                link.getId(),
-                link.getShortCode(),
-                shortUrl,
-                link.getOriginalUrl(),
-                link.getExpiresAt(),
-                link.isActive()
         );
     }
 }
