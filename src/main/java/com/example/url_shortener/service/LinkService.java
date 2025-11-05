@@ -38,7 +38,7 @@ public class LinkService {
                 .filter(Domain::isActive)
                 .orElseThrow(() -> new DomainNotFoundException("Domínio não encontrado ou inativo."));
 
-        String shortCode = linkHelpers.generateUniqueShortCode(linkRepository);
+        String shortCode = linkHelpers.generateNextShortCode();
 
         String originalUrl = request.getOriginalUrl().trim();
         if (!originalUrl.startsWith("http://") && !originalUrl.startsWith("https://")) {
