@@ -25,7 +25,7 @@ public class LinkClick {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "link_id", referencedColumnName = "id")
+    @JoinColumn(name = "link_id", referencedColumnName = "shortCode")
     private Link link;
 
     @Column(nullable = false)

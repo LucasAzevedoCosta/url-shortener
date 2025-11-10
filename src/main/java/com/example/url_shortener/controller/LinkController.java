@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.url_shortener.dto.LinkCreateRequest;
 import com.example.url_shortener.dto.LinkResponse;
-import com.example.url_shortener.dto.LinkStatsResponse;
 import com.example.url_shortener.dto.LinkUpdateRequest;
 import com.example.url_shortener.service.LinkService;
 
@@ -105,21 +104,5 @@ public class LinkController {
             @Parameter(description = "ShortCode do link a ser desativado") @PathVariable String shortCode) {
         linkService.deleteLink(shortCode);
         return ResponseEntity.noContent().build();
-    }
-
-    // ===========================================================
-    @Operation(
-            summary = "Obter estatísticas do link",
-            description = "Retorna estatísticas básicas, como número total de cliques e data do último acesso.",
-            responses = {
-                @ApiResponse(responseCode = "200", description = "Estatísticas retornadas com sucesso",
-                        content = @Content(schema = @Schema(implementation = LinkStatsResponse.class))),
-                @ApiResponse(responseCode = "404", description = "Link não encontrado")
-            }
-    )
-    @GetMapping("/{shortCode}/stats")
-    public ResponseEntity<LinkStatsResponse> getStats(
-            @Parameter(description = "ShortCode do link para o qual buscar estatísticas") @PathVariable String shortCode) {
-        return ResponseEntity.ok(linkService.getLinkStats(shortCode));
     }
 }
