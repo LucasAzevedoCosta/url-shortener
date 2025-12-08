@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.url_shortener.dto.LinkCreateRequest;
-import com.example.url_shortener.dto.LinkResponse;
-import com.example.url_shortener.dto.LinkUpdateRequest;
+import com.example.url_shortener.dto.link.LinkCreateRequest;
+import com.example.url_shortener.dto.link.LinkResponse;
+import com.example.url_shortener.dto.link.LinkUpdateRequest;
 import com.example.url_shortener.service.LinkService;
 
 import io.swagger.v3.oas.annotations.Operation;

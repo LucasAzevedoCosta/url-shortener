@@ -13,11 +13,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.url_shortener.dto.ApiKeyListResponse;
-import com.example.url_shortener.dto.ApiKeyResponse;
-import com.example.url_shortener.dto.CreateApiKeyRequest;
-import com.example.url_shortener.dto.CreateApiKeyResponse;
-import com.example.url_shortener.dto.UpdateApiKeyRequest;
+import com.example.url_shortener.dto.apikey.ApiKeyListResponse;
+import com.example.url_shortener.dto.apikey.ApiKeyResponse;
+import com.example.url_shortener.dto.apikey.CreateApiKeyRequest;
+import com.example.url_shortener.dto.apikey.CreateApiKeyResponse;
+import com.example.url_shortener.dto.apikey.UpdateApiKeyRequest;
 import com.example.url_shortener.service.ApiKeyService;
 
 import lombok.RequiredArgsConstructor;

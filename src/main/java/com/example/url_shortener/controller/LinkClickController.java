@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.url_shortener.dto.LinkClickResponseDTO;
-import com.example.url_shortener.dto.LinkStatsResponseDTO;
+import com.example.url_shortener.dto.link.LinkClickResponse;
+import com.example.url_shortener.dto.link.LinkStatsResponse;
 import com.example.url_shortener.service.LinkClickService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -37,12 +37,12 @@ public class LinkClickController {
             description = "Retorna todos os cliques registrados para um link específico. Pode ser filtrado por período de tempo.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Lista de cliques retornada com sucesso",
-                            content = @Content(schema = @Schema(implementation = LinkClickResponseDTO.class))),
+                            content = @Content(schema = @Schema(implementation = LinkClickResponse.class))),
                     @ApiResponse(responseCode = "404", description = "Link não encontrado")
             }
     )
     @GetMapping("/clicks")
-    public ResponseEntity<List<LinkClickResponseDTO>> getClicks(
+    public ResponseEntity<List<LinkClickResponse>> getClicks(
             @Parameter(description = "Identificador único (shortCode) do link encurtado", example = "xYz12A")
             @PathVariable String linkId,
 
@@ -61,12 +61,12 @@ public class LinkClickController {
             description = "Retorna estatísticas agregadas do link, como total de cliques, visitantes únicos, último clique e top países.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Estatísticas retornadas com sucesso",
-                            content = @Content(schema = @Schema(implementation = LinkStatsResponseDTO.class))),
+                            content = @Content(schema = @Schema(implementation = LinkStatsResponse.class))),
                     @ApiResponse(responseCode = "404", description = "Link não encontrado")
             }
     )
     @GetMapping("/stats")
-    public ResponseEntity<LinkStatsResponseDTO> getStats(
+    public ResponseEntity<LinkStatsResponse> getStats(
             @Parameter(description = "Identificador único (shortCode) do link encurtado", example = "xYz12A")
             @PathVariable String linkId
     ) {

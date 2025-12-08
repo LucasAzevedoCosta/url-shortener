@@ -1,4 +1,4 @@
-package com.example.url_shortener.dto;
+package com.example.url_shortener.dto.domain;
 
 import java.time.Instant;
 import java.util.UUID;

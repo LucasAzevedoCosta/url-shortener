@@ -1,4 +1,4 @@
-package com.example.url_shortener.dto;
+package com.example.url_shortener.dto.link;
 
 import java.time.Instant;
 
@@ -7,11 +7,10 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class LinkStatsResponse {
+public class LinkResponse {
     private String shortCode;
-    private long totalClicks;
-    private Instant lastClick;
-    private Instant createdAt;
+    private String shortUrl;
     private String originalUrl;
+    private Instant expiresAt;
+    private boolean isActive;
 }
-

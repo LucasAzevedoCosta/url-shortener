@@ -7,9 +7,9 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.example.url_shortener.dto.DomainCreateRequest;
-import com.example.url_shortener.dto.DomainResponse;
-import com.example.url_shortener.dto.DomainUpdateRequest;
+import com.example.url_shortener.dto.domain.DomainCreateRequest;
+import com.example.url_shortener.dto.domain.DomainResponse;
+import com.example.url_shortener.dto.domain.DomainUpdateRequest;
 import com.example.url_shortener.entity.Domain;
 import com.example.url_shortener.exception.DomainAlreadyExistsException;
 import com.example.url_shortener.exception.DomainNotFoundException;

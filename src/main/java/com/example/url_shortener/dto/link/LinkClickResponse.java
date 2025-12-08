@@ -1,4 +1,4 @@
-package com.example.url_shortener.dto;
+package com.example.url_shortener.dto.link;
 
 import java.time.Instant;
 
@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class LinkClickResponseDTO {
+public class LinkClickResponse {
 
     private Long id;
     private Instant clickedAt;
@@ -21,8 +21,8 @@ public class LinkClickResponseDTO {
     private String country;
     private String city;
 
-    public static LinkClickResponseDTO fromEntity(LinkClick entity) {
-        return new LinkClickResponseDTO(
+    public static LinkClickResponse fromEntity(LinkClick entity) {
+        return new LinkClickResponse(
                 entity.getId(),
                 entity.getClickedAt(),
                 entity.getIp(),

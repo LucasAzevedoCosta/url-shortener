@@ -9,8 +9,8 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
-import com.example.url_shortener.dto.ApiKeyResponse;
-import com.example.url_shortener.dto.CreateApiKeyResponse;
+import com.example.url_shortener.dto.apikey.ApiKeyResponse;
+import com.example.url_shortener.dto.apikey.CreateApiKeyResponse;
 import com.example.url_shortener.entity.ApiKey;
 import com.example.url_shortener.exception.BadRequestException;
 import com.example.url_shortener.exception.ResourceNotFoundException;

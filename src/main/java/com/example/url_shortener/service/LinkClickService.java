@@ -7,8 +7,8 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.url_shortener.dto.LinkClickResponseDTO;
-import com.example.url_shortener.dto.LinkStatsResponseDTO;
+import com.example.url_shortener.dto.link.LinkClickResponse;
+import com.example.url_shortener.dto.link.LinkStatsResponse;
 import com.example.url_shortener.entity.Link;
 import com.example.url_shortener.entity.LinkClick;
 import com.example.url_shortener.exception.ResourceNotFoundException;
@@ -25,7 +25,7 @@ public class LinkClickService {
     private final LinkRepository linkRepository;
 
     @Transactional(readOnly = true)
-    public List<LinkClickResponseDTO> listClicks(String linkId, Instant start, Instant end) {
+    public List<LinkClickResponse> listClicks(String linkId, Instant start, Instant end) {
         Link link = linkRepository.findById(linkId)
                 .orElseThrow(() -> new ResourceNotFoundException("Link não encontrado: " + linkId));
 
@@ -37,12 +37,12 @@ public class LinkClickService {
         }
 
         return clicks.stream()
-                .map(LinkClickResponseDTO::fromEntity)
+                .map(LinkClickResponse::fromEntity)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public LinkStatsResponseDTO getLinkStats(String linkId) {
+    public LinkStatsResponse getLinkStats(String linkId) {
         Link link = linkRepository.findById(linkId)
                 .orElseThrow(() -> new ResourceNotFoundException("Link não encontrado: " + linkId));
 
@@ -51,7 +51,7 @@ public class LinkClickService {
 
         var countryData = linkClickRepository.countClicksByCountry(link);
         var topCountries = countryData.stream()
-                .map(row -> new LinkStatsResponseDTO.TopCountry(
+                .map(row -> new LinkStatsResponse.TopCountry(
                 (String) row[0],
                 ((Long) row[1])
         ))
@@ -62,7 +62,7 @@ public class LinkClickService {
                 .max(Instant::compareTo)
                 .orElse(null);
 
-        return new LinkStatsResponseDTO(totalClicks, uniqueVisitors, lastClick, topCountries);
+        return new LinkStatsResponse(totalClicks, uniqueVisitors, lastClick, topCountries);
     }
 
 }

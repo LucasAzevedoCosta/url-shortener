@@ -1,6 +1,6 @@
 package com.example.url_shortener.helper;
 
-import com.example.url_shortener.dto.DomainResponse;
+import com.example.url_shortener.dto.domain.DomainResponse;
 import com.example.url_shortener.entity.Domain;
 
 public class DomainHelpers {

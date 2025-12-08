@@ -1,7 +1,6 @@
 package com.example.url_shortener.service;
 
 import java.time.Instant;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -9,17 +8,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 
-import com.example.url_shortener.dto.LinkCreateRequest;
-import com.example.url_shortener.dto.LinkResponse;
-import com.example.url_shortener.dto.LinkStatsResponse;
-import com.example.url_shortener.dto.LinkUpdateRequest;
+import com.example.url_shortener.dto.link.LinkCreateRequest;
+import com.example.url_shortener.dto.link.LinkResponse;
+import com.example.url_shortener.dto.link.LinkUpdateRequest;
 import com.example.url_shortener.entity.Domain;
 import com.example.url_shortener.entity.Link;
 import com.example.url_shortener.exception.DomainNotFoundException;
 import com.example.url_shortener.exception.LinkNotFoundException;
 import com.example.url_shortener.helper.LinkHelpers;
 import com.example.url_shortener.repository.DomainRepository;
-import com.example.url_shortener.repository.LinkClickRepository;
 import com.example.url_shortener.repository.LinkRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -30,7 +27,6 @@ public class LinkService {
 
     private final LinkRepository linkRepository;
     private final DomainRepository domainRepository;
-    private final LinkClickRepository linkClickRepository;
     private final LinkHelpers linkHelpers;
 
     public LinkResponse createLink(LinkCreateRequest request) {
@@ -112,25 +108,5 @@ public class LinkService {
         link.setIsActive(false);
         link.setDeletedAt(Instant.now());
         linkRepository.save(link);
-    }
-
-    public LinkStatsResponse getLinkStats(String shortCode) {
-        Link link = linkRepository.findById(shortCode)
-                .orElseThrow(() -> new LinkNotFoundException("Link não encontrado."));
-
-        long totalClicks = linkClickRepository.countByLink_ShortCode(shortCode);
-
-        Optional<Instant> lastClick = linkClickRepository.findByLink_ShortCode(shortCode)
-                .stream()
-                .map(c -> c.getClickedAt())
-                .max(Instant::compareTo);
-
-        return new LinkStatsResponse(
-                link.getShortCode(),
-                totalClicks,
-                lastClick.orElse(null),
-                link.getCreatedAt(),
-                link.getOriginalUrl()
-        );
     }
 }

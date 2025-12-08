@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.example.url_shortener.dto.LinkResponse;
+import com.example.url_shortener.dto.link.LinkResponse;
 import com.example.url_shortener.entity.Link;
 
 @Component
