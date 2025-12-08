@@ -7,5 +7,5 @@ public class UpdateApiKeyRequest {
 
     private String name;
     private Integer rateLimitPerMinute;
-    private Boolean active;
+    private Boolean isActive;
 }

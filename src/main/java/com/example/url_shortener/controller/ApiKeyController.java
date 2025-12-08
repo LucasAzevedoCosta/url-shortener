@@ -51,7 +51,7 @@ public class ApiKeyController {
             @RequestBody UpdateApiKeyRequest req
     ) {
         return ResponseEntity.ok(
-                apiKeyService.update(id, req.getName(), req.getRateLimitPerMinute(), req.getActive())
+                apiKeyService.update(id, req.getName(), req.getRateLimitPerMinute(), req.getIsActive())
         );
     }
 

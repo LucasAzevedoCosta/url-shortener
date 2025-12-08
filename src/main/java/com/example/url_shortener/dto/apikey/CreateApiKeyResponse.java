@@ -10,7 +10,7 @@ public class CreateApiKeyResponse {
 
     private UUID id;
     private String name;
-    private String apiKey; // token real
+    private String apiKey;
     private int rateLimitPerMinute;
     private Instant createdAt;
 }

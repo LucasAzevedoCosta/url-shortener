@@ -10,7 +10,7 @@ public class ApiKeyResponse {
     private UUID id;
     private String name;
     private int rateLimitPerMinute;
-    private boolean active;
+    private boolean isActive;
     private Instant createdAt;
     private Instant updatedAt;
 }
