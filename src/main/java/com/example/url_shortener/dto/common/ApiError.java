@@ -4,14 +4,17 @@ import java.time.Instant;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class ApiError {
 
+    @Builder.Default
     private Instant timestamp = Instant.now();
 
     private int status;
@@ -22,13 +25,7 @@ public class ApiError {
 
     private String path;
 
-    private List<String> details;
+    private String code;
 
-    public ApiError(int status, String error, String message, String path) {
-        this.timestamp = Instant.now();
-        this.status = status;
-        this.error = error;
-        this.message = message;
-        this.path = path;
-    }
+    private List<ApiFieldError> details;
 }
