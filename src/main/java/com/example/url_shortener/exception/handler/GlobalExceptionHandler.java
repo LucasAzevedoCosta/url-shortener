@@ -1,4 +1,4 @@
-package com.example.url_shortener.exception;
+package com.example.url_shortener.exception.handler;
 
 import java.time.Instant;
 import java.util.List;
@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.example.url_shortener.dto.common.ApiError;
 import com.example.url_shortener.dto.common.ApiFieldError;
+import com.example.url_shortener.exception.domain.DomainNotFoundException;
+import com.example.url_shortener.exception.link.LinkNotFoundException;
 
 import jakarta.servlet.http.HttpServletRequest;
 

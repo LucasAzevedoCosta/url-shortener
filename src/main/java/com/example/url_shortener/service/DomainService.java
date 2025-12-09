@@ -11,8 +11,8 @@ import com.example.url_shortener.dto.domain.DomainCreateRequest;
 import com.example.url_shortener.dto.domain.DomainResponse;
 import com.example.url_shortener.dto.domain.DomainUpdateRequest;
 import com.example.url_shortener.entity.Domain;
-import com.example.url_shortener.exception.DomainAlreadyExistsException;
-import com.example.url_shortener.exception.DomainNotFoundException;
+import com.example.url_shortener.exception.domain.DomainAlreadyExistsException;
+import com.example.url_shortener.exception.domain.DomainNotFoundException;
 import com.example.url_shortener.helper.DomainHelpers;
 import com.example.url_shortener.repository.DomainRepository;
 

@@ -11,7 +11,7 @@ import com.example.url_shortener.dto.link.LinkClickResponse;
 import com.example.url_shortener.dto.link.LinkStatsResponse;
 import com.example.url_shortener.entity.Link;
 import com.example.url_shortener.entity.LinkClick;
-import com.example.url_shortener.exception.ResourceNotFoundException;
+import com.example.url_shortener.exception.domain.ResourceNotFoundException;
 import com.example.url_shortener.repository.LinkClickRepository;
 import com.example.url_shortener.repository.LinkRepository;
 
