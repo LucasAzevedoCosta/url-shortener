@@ -11,47 +11,21 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.example.url_shortener.dto.common.ApiError;
 import com.example.url_shortener.dto.common.ApiFieldError;
-import com.example.url_shortener.exception.domain.DomainNotFoundException;
-import com.example.url_shortener.exception.link.LinkNotFoundException;
+import com.example.url_shortener.exception.base.ApplicationException;
 
 import jakarta.servlet.http.HttpServletRequest;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // 404 - Not Found
-    @ExceptionHandler({DomainNotFoundException.class, LinkNotFoundException.class})
-    public ResponseEntity<ApiError> handleNotFound(RuntimeException ex, HttpServletRequest req) {
+    @ExceptionHandler(ApplicationException.class)
+    public ResponseEntity<ApiError> handleApplicationException(ApplicationException ex, HttpServletRequest req) {
 
-        ApiError error = ApiError.builder()
-                .timestamp(Instant.now())
-                .status(HttpStatus.NOT_FOUND.value())
-                .error("Not Found")
-                .message(ex.getMessage())
-                .path(req.getRequestURI())
-                .code("NOT_FOUND")
-                .build();
+        ApiError error = ApiError.fromException(ex, req.getRequestURI());
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        return ResponseEntity.status(ex.getHttpStatus()).body(error);
     }
 
-    // 400 - Bad Request
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ApiError> handleBadRequest(IllegalArgumentException ex, HttpServletRequest req) {
-
-        ApiError error = ApiError.builder()
-                .timestamp(Instant.now())
-                .status(HttpStatus.BAD_REQUEST.value())
-                .error("Bad Request")
-                .message(ex.getMessage())
-                .path(req.getRequestURI())
-                .code("BAD_REQUEST")
-                .build();
-
-        return ResponseEntity.badRequest().body(error);
-    }
-
-    // 400 - Validation Errors
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> handleValidationErrors(MethodArgumentNotValidException ex, HttpServletRequest req) {
 
@@ -74,7 +48,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(error);
     }
 
-    // 500 - Internal Server Error
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleGeneric(Exception ex, HttpServletRequest req) {
 
