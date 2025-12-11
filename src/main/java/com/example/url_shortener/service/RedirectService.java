@@ -12,7 +12,10 @@ import com.example.url_shortener.entity.Domain;
 import com.example.url_shortener.entity.Link;
 import com.example.url_shortener.entity.LinkClick;
 import com.example.url_shortener.exception.domain.DomainNotFoundException;
+import com.example.url_shortener.exception.link.LinkExpiredException;
+import com.example.url_shortener.exception.link.LinkInactiveException;
 import com.example.url_shortener.exception.link.LinkNotFoundException;
+import com.example.url_shortener.exception.link.MaxClicksReachedException;
 import com.example.url_shortener.repository.DomainRepository;
 import com.example.url_shortener.repository.LinkClickRepository;
 import com.example.url_shortener.repository.LinkRepository;
@@ -22,33 +25,27 @@ import jakarta.servlet.http.HttpServletRequest;
 @Service
 public class RedirectService {
 
-    @Autowired
-    private DomainRepository domainRepository;
-
-    @Autowired
-    private LinkRepository linkRepository;
-
-    @Autowired
-    private LinkClickRepository linkClickRepository;
+    @Autowired private DomainRepository domainRepository;
+    @Autowired private LinkRepository linkRepository;
+    @Autowired private LinkClickRepository linkClickRepository;
 
     public ResponseEntity<?> handleRedirect(String host, String shortCode, HttpServletRequest request) {
+
         Domain domain = domainRepository.findByHost(host)
                 .filter(Domain::isActive)
-                .orElseThrow(() -> new DomainNotFoundException("Domínio inválido ou inativo: " + host));
+                .orElseThrow(() -> new DomainNotFoundException(host));
 
         Link link = linkRepository.findByShortCodeAndDomain_Id(shortCode, domain.getId())
-                .orElseThrow(() -> new LinkNotFoundException("Link não encontrado ou não pertence ao domínio."));
+                .orElseThrow(() -> new LinkNotFoundException(shortCode));
 
-        if (!link.isActive()) {
-            return ResponseEntity.status(HttpStatus.GONE).body("Este link foi desativado.");
-        }
+        if (!link.isActive()) throw new LinkInactiveException();
 
         if (link.getExpiresAt() != null && Instant.now().isAfter(link.getExpiresAt())) {
-            return ResponseEntity.status(HttpStatus.GONE).body("Este link expirou.");
+            throw new LinkExpiredException();
         }
 
         if (link.getMaxClicks() != null && link.getClickCount() >= link.getMaxClicks()) {
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("Limite de cliques atingido.");
+            throw new MaxClicksReachedException(link.getMaxClicks());
         }
 
         LinkClick click = new LinkClick();

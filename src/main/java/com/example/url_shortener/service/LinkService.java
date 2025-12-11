@@ -13,6 +13,7 @@ import com.example.url_shortener.dto.link.LinkResponse;
 import com.example.url_shortener.dto.link.LinkUpdateRequest;
 import com.example.url_shortener.entity.Domain;
 import com.example.url_shortener.entity.Link;
+import com.example.url_shortener.exception.api.BadRequestException;
 import com.example.url_shortener.exception.domain.DomainNotFoundException;
 import com.example.url_shortener.exception.link.LinkNotFoundException;
 import com.example.url_shortener.helper.LinkHelpers;
@@ -30,15 +31,16 @@ public class LinkService {
     private final LinkHelpers linkHelpers;
 
     public LinkResponse createLink(LinkCreateRequest request) {
+
         Domain domain = domainRepository.findById(UUID.fromString(request.getDomainId()))
                 .filter(Domain::isActive)
-                .orElseThrow(() -> new DomainNotFoundException("Domínio não encontrado ou inativo."));
+                .orElseThrow(() -> new DomainNotFoundException(request.getDomainId()));
 
         String shortCode = linkHelpers.generateNextShortCode();
 
         String originalUrl = request.getOriginalUrl().trim();
         if (!originalUrl.startsWith("http://") && !originalUrl.startsWith("https://")) {
-            originalUrl = "https://" + originalUrl;
+            throw new BadRequestException("URL inválida.");
         }
 
         Link link = new Link();
@@ -67,18 +69,18 @@ public class LinkService {
 
     public LinkResponse getLinkByShortCode(String shortCode) {
         Link link = linkRepository.findById(shortCode)
-                .orElseThrow(() -> new LinkNotFoundException("Link não encontrado."));
+                .orElseThrow(() -> new LinkNotFoundException(shortCode));
         return LinkHelpers.toResponse(link);
     }
 
     public LinkResponse updateLink(String shortCode, LinkUpdateRequest request) {
         Link link = linkRepository.findById(shortCode)
-                .orElseThrow(() -> new LinkNotFoundException("Link não encontrado."));
+                .orElseThrow(() -> new LinkNotFoundException(shortCode));
 
         if (request.getOriginalUrl() != null) {
             String originalUrl = request.getOriginalUrl().trim();
             if (!originalUrl.startsWith("http://") && !originalUrl.startsWith("https://")) {
-                originalUrl = "https://" + originalUrl;
+                throw new BadRequestException("URL inválida.");
             }
             link.setOriginalUrl(originalUrl);
         }
@@ -92,6 +94,7 @@ public class LinkService {
         if (request.getIsActive() != null) {
             link.setIsActive(request.getIsActive());
         }
+
         if (request.getPassword() != null) {
             link.setPasswordHash(BCrypt.hashpw(request.getPassword(), BCrypt.gensalt()));
         }
@@ -103,10 +106,13 @@ public class LinkService {
     }
 
     public void deleteLink(String shortCode) {
+
         Link link = linkRepository.findById(shortCode)
-                .orElseThrow(() -> new LinkNotFoundException("Link não encontrado."));
+                .orElseThrow(() -> new LinkNotFoundException(shortCode));
+
         link.setIsActive(false);
         link.setDeletedAt(Instant.now());
+
         linkRepository.save(link);
     }
 }

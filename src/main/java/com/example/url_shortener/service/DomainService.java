@@ -3,7 +3,6 @@ package com.example.url_shortener.service;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -25,8 +24,9 @@ public class DomainService {
     private final DomainRepository domainRepository;
 
     public DomainResponse createDomain(DomainCreateRequest request) {
+
         if (domainRepository.existsByHost(request.getHost())) {
-            throw new DomainAlreadyExistsException("O domínio já está cadastrado: " + request.getHost());
+            throw new DomainAlreadyExistsException(request.getHost());
         }
 
         Domain domain = new Domain();
@@ -43,18 +43,18 @@ public class DomainService {
         return domainRepository.findAll()
                 .stream()
                 .map(DomainHelpers::toResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public DomainResponse getDomainById(UUID id) {
         Domain domain = domainRepository.findById(id)
-                .orElseThrow(() -> new DomainNotFoundException("Domínio não encontrado."));
+                .orElseThrow(() -> new DomainNotFoundException(id.toString()));
         return DomainHelpers.toResponse(domain);
     }
 
     public DomainResponse updateDomain(UUID id, DomainUpdateRequest request) {
         Domain domain = domainRepository.findById(id)
-                .orElseThrow(() -> new DomainNotFoundException("Domínio não encontrado."));
+                .orElseThrow(() -> new DomainNotFoundException(id.toString()));
 
         if (request.getIsActive() != null) {
             domain.setActive(request.getIsActive());
@@ -68,10 +68,11 @@ public class DomainService {
 
     public void deleteDomain(UUID id) {
         Domain domain = domainRepository.findById(id)
-                .orElseThrow(() -> new DomainNotFoundException("Domínio não encontrado."));
+                .orElseThrow(() -> new DomainNotFoundException(id.toString()));
 
         domain.setActive(false);
         domain.setUpdatedAt(Instant.now());
+
         domainRepository.save(domain);
     }
 }

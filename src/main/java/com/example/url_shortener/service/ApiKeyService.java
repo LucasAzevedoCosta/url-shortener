@@ -2,6 +2,7 @@ package com.example.url_shortener.service;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.List;
@@ -12,8 +13,10 @@ import org.springframework.stereotype.Service;
 import com.example.url_shortener.dto.apikey.ApiKeyResponse;
 import com.example.url_shortener.dto.apikey.CreateApiKeyResponse;
 import com.example.url_shortener.entity.ApiKey;
+import com.example.url_shortener.exception.api.ApiKeyInactiveException;
+import com.example.url_shortener.exception.api.ApiKeyNotFoundException;
 import com.example.url_shortener.exception.api.BadRequestException;
-import com.example.url_shortener.exception.domain.ResourceNotFoundException;
+import com.example.url_shortener.exception.common.HashGenerationException;
 import com.example.url_shortener.repository.ApiKeyRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -35,15 +38,17 @@ public class ApiKeyService {
                 sb.append(String.format("%02x", b));
             }
             return sb.toString();
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao gerar hash", e);
+
+        } catch (NoSuchAlgorithmException e) {
+            throw new HashGenerationException("Erro ao gerar hash para a chave de API");
         }
+
     }
 
     public CreateApiKeyResponse create(String name, int rateLimit) {
 
         if (name == null || name.isBlank()) {
-            throw new BadRequestException("O nome da chave não pode ser vazio.");
+            throw new BadRequestException("O nome da API Key não pode ser vazio.");
         }
 
         String rawKey = UUID.randomUUID() + "-" + random.nextLong();
@@ -53,6 +58,7 @@ public class ApiKeyService {
         apiKey.setName(name);
         apiKey.setTokenHash(hash);
         apiKey.setRateLimitPerMinute(rateLimit);
+        apiKey.setActive(true);
         apiKey.setCreatedAt(Instant.now());
         apiKey.setUpdatedAt(Instant.now());
 
@@ -61,10 +67,12 @@ public class ApiKeyService {
         CreateApiKeyResponse response = new CreateApiKeyResponse();
         response.setId(apiKey.getId());
         response.setName(apiKey.getName());
+        response.setApiKey(rawKey);
         response.setRateLimitPerMinute(apiKey.getRateLimitPerMinute());
         response.setCreatedAt(apiKey.getCreatedAt());
-        response.setApiKey(rawKey);
+
         return response;
+
     }
 
     public ApiKeyResponse toResponse(ApiKey key) {
@@ -86,13 +94,17 @@ public class ApiKeyService {
 
     public ApiKeyResponse findById(UUID id) {
         ApiKey key = apiKeyRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("API Key não encontrada."));
+                .orElseThrow(() -> new ApiKeyNotFoundException());
         return toResponse(key);
     }
 
     public ApiKeyResponse update(UUID id, String name, Integer rateLimit, Boolean active) {
         ApiKey key = apiKeyRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("API Key não encontrada."));
+                .orElseThrow(ApiKeyNotFoundException::new);
+
+        if (name != null && name.isBlank()) {
+            throw new BadRequestException("Nome inválido.");
+        }
 
         if (name != null) {
             key.setName(name);
@@ -112,11 +124,14 @@ public class ApiKeyService {
 
     public void disable(UUID id) {
         ApiKey key = apiKeyRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("API Key não encontrada."));
+                .orElseThrow(ApiKeyNotFoundException::new);
+
+        if (!key.isActive()) {
+            throw new ApiKeyInactiveException();
+        }
 
         key.setActive(false);
         key.setUpdatedAt(Instant.now());
-
         apiKeyRepository.save(key);
     }
 }
