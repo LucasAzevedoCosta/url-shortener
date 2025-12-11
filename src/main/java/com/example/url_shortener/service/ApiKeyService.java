@@ -3,7 +3,6 @@ package com.example.url_shortener.service;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -17,6 +16,7 @@ import com.example.url_shortener.exception.api.ApiKeyInactiveException;
 import com.example.url_shortener.exception.api.ApiKeyNotFoundException;
 import com.example.url_shortener.exception.api.BadRequestException;
 import com.example.url_shortener.exception.common.HashGenerationException;
+import com.example.url_shortener.helper.ApiKeyGenerator;
 import com.example.url_shortener.repository.ApiKeyRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,8 @@ import lombok.RequiredArgsConstructor;
 public class ApiKeyService {
 
     private final ApiKeyRepository apiKeyRepository;
-    private final SecureRandom random = new SecureRandom();
+
+    private final ApiKeyGenerator apiKeyGenerator;
 
     private String sha256(String value) {
         try {
@@ -42,7 +43,6 @@ public class ApiKeyService {
         } catch (NoSuchAlgorithmException e) {
             throw new HashGenerationException("Erro ao gerar hash para a chave de API");
         }
-
     }
 
     public CreateApiKeyResponse create(String name, int rateLimit) {
@@ -51,7 +51,8 @@ public class ApiKeyService {
             throw new BadRequestException("O nome da API Key não pode ser vazio.");
         }
 
-        String rawKey = UUID.randomUUID() + "-" + random.nextLong();
+        String rawKey = apiKeyGenerator.generateApiKey();
+
         String hash = sha256(rawKey);
 
         ApiKey apiKey = new ApiKey();
@@ -67,12 +68,11 @@ public class ApiKeyService {
         CreateApiKeyResponse response = new CreateApiKeyResponse();
         response.setId(apiKey.getId());
         response.setName(apiKey.getName());
-        response.setApiKey(rawKey);
+        response.setApiKey(rawKey); // somente raw key é retornada
         response.setRateLimitPerMinute(apiKey.getRateLimitPerMinute());
         response.setCreatedAt(apiKey.getCreatedAt());
 
         return response;
-
     }
 
     public ApiKeyResponse toResponse(ApiKey key) {
@@ -94,7 +94,8 @@ public class ApiKeyService {
 
     public ApiKeyResponse findById(UUID id) {
         ApiKey key = apiKeyRepository.findById(id)
-                .orElseThrow(() -> new ApiKeyNotFoundException());
+                .orElseThrow(ApiKeyNotFoundException::new);
+
         return toResponse(key);
     }
 

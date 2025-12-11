@@ -6,14 +6,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
-import com.example.url_shortener.dto.link.LinkResponse;
-import com.example.url_shortener.entity.Link;
-
-@Component
-public class LinkHelpers {
+public class CodeGenerator {
 
     private static final String BASE_ALPHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     private static final int BASE = 62;
@@ -27,15 +20,10 @@ public class LinkHelpers {
     private final long minValue;
     private final long maxValue;
 
-    public LinkHelpers(
-            @Value("${app.shortener.secret}") String secret,
-            @Value("${app.shortener.start-seq:1}") long startValue,
-            @Value("${app.shortener.min-length:5}") int minLength,
-            @Value("${app.shortener.max-length:15}") int maxLength
-    ) {
+    public CodeGenerator(String secret, long startValue, int minLength, int maxLength) {
 
         if (minLength < 1 || minLength > maxLength) {
-            throw new IllegalArgumentException("min-length deve ser >= 1 e <= max-length");
+            throw new IllegalArgumentException("minLength deve ser >= 1 e <= maxLength");
         }
 
         this.minLength = minLength;
@@ -50,13 +38,11 @@ public class LinkHelpers {
         this.sequence = new AtomicLong(initial);
     }
 
-    public String generateNextShortCode() {
+    public String generate() {
         long current = sequence.getAndIncrement();
 
         if (current > maxValue) {
-            throw new IllegalStateException(
-                    "Limite máximo de códigos atingido (62^" + maxLength + " - 1)."
-            );
+            throw new IllegalStateException("Limite máximo de códigos atingido.");
         }
 
         return encodeBase62WithMinLength(current);
@@ -69,7 +55,6 @@ public class LinkHelpers {
             int diff = minLength - encoded.length();
             return String.valueOf(shuffledAlphabet[0]).repeat(diff) + encoded;
         }
-
         return encoded;
     }
 
@@ -77,6 +62,7 @@ public class LinkHelpers {
         if (value == 0) {
             return String.valueOf(shuffledAlphabet[0]);
         }
+
         StringBuilder sb = new StringBuilder();
         while (value > 0) {
             int idx = (int) (value % BASE);
@@ -90,12 +76,14 @@ public class LinkHelpers {
         char[] arr = alphabet.toCharArray();
         long seed = deriveSeedFromSecret(secret);
         Random rnd = new Random(seed);
+
         for (int i = arr.length - 1; i > 0; i--) {
             int j = rnd.nextInt(i + 1);
             char tmp = arr[i];
             arr[i] = arr[j];
             arr[j] = tmp;
         }
+
         return arr;
     }
 
@@ -121,16 +109,5 @@ public class LinkHelpers {
 
     private long getMaxValueForLength(int length) {
         return (long) Math.pow(BASE, length) - 1;
-    }
-
-    public static LinkResponse toResponse(Link link) {
-        String shortUrl = "https://" + link.getDomain().getHost() + "/" + link.getShortCode();
-        return new LinkResponse(
-                link.getShortCode(),
-                shortUrl,
-                link.getOriginalUrl(),
-                link.getExpiresAt(),
-                link.isActive()
-        );
     }
 }
