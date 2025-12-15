@@ -17,6 +17,7 @@ import com.example.url_shortener.exception.api.BadRequestException;
 import com.example.url_shortener.exception.domain.DomainNotFoundException;
 import com.example.url_shortener.exception.link.LinkNotFoundException;
 import com.example.url_shortener.helper.LinkHelpers;
+import com.example.url_shortener.helper.ShortCodeGenerator;
 import com.example.url_shortener.repository.DomainRepository;
 import com.example.url_shortener.repository.LinkRepository;
 
@@ -28,7 +29,7 @@ public class LinkService {
 
     private final LinkRepository linkRepository;
     private final DomainRepository domainRepository;
-    private final LinkHelpers linkHelpers;
+    private final ShortCodeGenerator shortCodeGenerator;
 
     public LinkResponse createLink(LinkCreateRequest request) {
 
@@ -36,7 +37,7 @@ public class LinkService {
                 .filter(Domain::isActive)
                 .orElseThrow(() -> new DomainNotFoundException(request.getDomainId()));
 
-        String shortCode = linkHelpers.generateNextShortCode();
+        String shortCode = shortCodeGenerator.generate();
 
         String originalUrl = request.getOriginalUrl().trim();
         if (!originalUrl.startsWith("http://") && !originalUrl.startsWith("https://")) {

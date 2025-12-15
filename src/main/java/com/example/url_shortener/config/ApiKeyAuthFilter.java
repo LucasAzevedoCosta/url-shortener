@@ -3,6 +3,7 @@ package com.example.url_shortener.config;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.example.url_shortener.entity.ApiKey;
+import com.example.url_shortener.exception.common.HashGenerationException;
 import com.example.url_shortener.repository.ApiKeyRepository;
 
 import jakarta.servlet.FilterChain;
@@ -35,8 +37,8 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
             }
 
             return hex.toString();
-        } catch (Exception e) {
-            throw new IllegalStateException("Erro ao gerar hash SHA-256", e);
+        } catch (NoSuchAlgorithmException e) {
+            throw new HashGenerationException("Erro ao gerar hash SHA-256");
         }
     }
 

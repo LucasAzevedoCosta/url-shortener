@@ -26,7 +26,6 @@ import lombok.RequiredArgsConstructor;
 public class ApiKeyService {
 
     private final ApiKeyRepository apiKeyRepository;
-
     private final ApiKeyGenerator apiKeyGenerator;
 
     private String sha256(String value) {
@@ -41,18 +40,17 @@ public class ApiKeyService {
             return sb.toString();
 
         } catch (NoSuchAlgorithmException e) {
-            throw new HashGenerationException("Erro ao gerar hash para a chave de API");
+            throw new HashGenerationException("Erro ao gerar hash da API Key");
         }
     }
 
     public CreateApiKeyResponse create(String name, int rateLimit) {
 
         if (name == null || name.isBlank()) {
-            throw new BadRequestException("O nome da API Key não pode ser vazio.");
+            throw new BadRequestException("Nome inválido");
         }
 
         String rawKey = apiKeyGenerator.generateApiKey();
-
         String hash = sha256(rawKey);
 
         ApiKey apiKey = new ApiKey();
@@ -68,26 +66,16 @@ public class ApiKeyService {
         CreateApiKeyResponse response = new CreateApiKeyResponse();
         response.setId(apiKey.getId());
         response.setName(apiKey.getName());
-        response.setApiKey(rawKey); // somente raw key é retornada
+        response.setApiKey(rawKey);
         response.setRateLimitPerMinute(apiKey.getRateLimitPerMinute());
         response.setCreatedAt(apiKey.getCreatedAt());
 
         return response;
     }
 
-    public ApiKeyResponse toResponse(ApiKey key) {
-        ApiKeyResponse dto = new ApiKeyResponse();
-        dto.setId(key.getId());
-        dto.setName(key.getName());
-        dto.setRateLimitPerMinute(key.getRateLimitPerMinute());
-        dto.setActive(key.isActive());
-        dto.setCreatedAt(key.getCreatedAt());
-        dto.setUpdatedAt(key.getUpdatedAt());
-        return dto;
-    }
-
     public List<ApiKeyResponse> listAll() {
-        return apiKeyRepository.findAll().stream()
+        return apiKeyRepository.findAll()
+                .stream()
                 .map(this::toResponse)
                 .toList();
     }
@@ -95,16 +83,16 @@ public class ApiKeyService {
     public ApiKeyResponse findById(UUID id) {
         ApiKey key = apiKeyRepository.findById(id)
                 .orElseThrow(ApiKeyNotFoundException::new);
-
         return toResponse(key);
     }
 
     public ApiKeyResponse update(UUID id, String name, Integer rateLimit, Boolean active) {
+
         ApiKey key = apiKeyRepository.findById(id)
                 .orElseThrow(ApiKeyNotFoundException::new);
 
         if (name != null && name.isBlank()) {
-            throw new BadRequestException("Nome inválido.");
+            throw new BadRequestException("Nome inválido");
         }
 
         if (name != null) {
@@ -134,5 +122,16 @@ public class ApiKeyService {
         key.setActive(false);
         key.setUpdatedAt(Instant.now());
         apiKeyRepository.save(key);
+    }
+
+    private ApiKeyResponse toResponse(ApiKey key) {
+        ApiKeyResponse dto = new ApiKeyResponse();
+        dto.setId(key.getId());
+        dto.setName(key.getName());
+        dto.setRateLimitPerMinute(key.getRateLimitPerMinute());
+        dto.setActive(key.isActive());
+        dto.setCreatedAt(key.getCreatedAt());
+        dto.setUpdatedAt(key.getUpdatedAt());
+        return dto;
     }
 }
