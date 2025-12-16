@@ -20,11 +20,13 @@ import com.example.url_shortener.dto.apikey.CreateApiKeyResponse;
 import com.example.url_shortener.dto.apikey.UpdateApiKeyRequest;
 import com.example.url_shortener.service.ApiKeyService;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/keys")
 @RequiredArgsConstructor
+@Tag(name = "API Keys", description = "Gerenciamento de chaves de API.")
 public class ApiKeyController {
 
     private final ApiKeyService apiKeyService;

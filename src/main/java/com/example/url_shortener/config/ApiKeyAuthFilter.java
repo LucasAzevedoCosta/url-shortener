@@ -49,8 +49,8 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
 
         return path.startsWith("/swagger-ui")
                 || path.startsWith("/v3/api-docs")
-                || path.matches("^/[^/]{5,10}$")
-                || path.matches("/api/links")
+                || path.matches("^/[^/]{3,10}$")
+                || (path.equals("/api/links") && request.getMethod().equalsIgnoreCase("POST"))
                 || (path.equals("/api/keys") && request.getMethod().equalsIgnoreCase("POST"));
 
     }
@@ -92,8 +92,8 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
 
         response.getWriter().write("""
         {
-            "error": "Unauthorized",
-            "message": "%s"
+          "error": "Unauthorized",
+          "message": "%s"
         }
         """.formatted(message));
     }
