@@ -9,5 +9,6 @@
     "app-springboot/src/test/resources"
   ],
   "java.project.outputPath": "app-springboot/target",
-  "java.configuration.updateBuildConfiguration": "automatic"
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "java.compile.nullAnalysis.mode": "automatic"
 }
