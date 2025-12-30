@@ -6,4 +6,4 @@ COPY . .
 
 RUN chmod +x mvnw
 
-CMD ["./mvnw", "spring-boot:run"]
+CMD ["./mvnw", "spring-boot:run", "-DskipTests"]
