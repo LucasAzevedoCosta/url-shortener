@@ -1,6 +1,35 @@
+version: "3.9"
+
 services:
+  traefik:
+    image: traefik:v3
+    container_name: traefik
+    ports:
+      - "80:80"
+      - "8080:8080" # dashboard
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik/traefik.dev.yml:/etc/traefik/traefik.yml
+
+  app:
+    build:
+      context: ./app-springboot
+      dockerfile: Dockerfile.dev
+    container_name: url-shortener-app
+    volumes:
+      - ./app-springboot:/app
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.shortener.rule=Host(`shortener.localhost`)"
+      - "traefik.http.services.shortener.loadbalancer.server.port=8080"
+    depends_on:
+      - db
+
   db:
     image: postgres:16
+    container_name: postgres
     environment:
       POSTGRES_DB: shortener_db
       POSTGRES_USER: usuario
@@ -8,4 +37,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./data/db:/var/lib/postgresql/data
+      - db_data:/var/lib/postgresql/data
+
+volumes:
+  db_data:

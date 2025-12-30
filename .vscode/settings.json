@@ -1,0 +1,13 @@
+{
+  "java.import.maven.enabled": true,
+  "java.project.sourcePaths": [
+    "app-springboot/src/main/java",
+    "app-springboot/src/test/java"
+  ],
+  "java.project.resourcePaths": [
+    "app-springboot/src/main/resources",
+    "app-springboot/src/test/resources"
+  ],
+  "java.project.outputPath": "app-springboot/target",
+  "java.configuration.updateBuildConfiguration": "automatic"
+}
