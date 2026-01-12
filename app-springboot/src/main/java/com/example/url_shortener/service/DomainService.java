@@ -15,6 +15,7 @@ import com.example.url_shortener.exception.domain.DomainNotFoundException;
 import com.example.url_shortener.helper.DomainHelpers;
 import com.example.url_shortener.repository.DomainRepository;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -46,13 +47,13 @@ public class DomainService {
                 .toList();
     }
 
-    public DomainResponse getDomainById(UUID id) {
+    public DomainResponse getDomainById(@NonNull UUID id) {
         Domain domain = domainRepository.findById(id)
                 .orElseThrow(() -> new DomainNotFoundException(id.toString()));
         return DomainHelpers.toResponse(domain);
     }
 
-    public DomainResponse updateDomain(UUID id, DomainUpdateRequest request) {
+    public DomainResponse updateDomain(@NonNull UUID id, DomainUpdateRequest request) {
         Domain domain = domainRepository.findById(id)
                 .orElseThrow(() -> new DomainNotFoundException(id.toString()));
 
@@ -66,7 +67,7 @@ public class DomainService {
         return DomainHelpers.toResponse(domain);
     }
 
-    public void deleteDomain(UUID id) {
+    public void deleteDomain(@NonNull UUID id) {
         Domain domain = domainRepository.findById(id)
                 .orElseThrow(() -> new DomainNotFoundException(id.toString()));
 

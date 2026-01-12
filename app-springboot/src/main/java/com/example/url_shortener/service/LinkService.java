@@ -1,6 +1,7 @@
 package com.example.url_shortener.service;
 
 import java.time.Instant;
+import java.util.Objects;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -21,6 +22,7 @@ import com.example.url_shortener.helper.ShortCodeGenerator;
 import com.example.url_shortener.repository.DomainRepository;
 import com.example.url_shortener.repository.LinkRepository;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -33,9 +35,14 @@ public class LinkService {
 
     public LinkResponse createLink(LinkCreateRequest request) {
 
-        Domain domain = domainRepository.findById(UUID.fromString(request.getDomainId()))
+        final UUID domainId = Objects.requireNonNull(
+                parseDomainId(request.getDomainId()),
+                "domainId cannot be null"
+        );
+
+        Domain domain = domainRepository.findById(domainId)
                 .filter(Domain::isActive)
-                .orElseThrow(() -> new DomainNotFoundException(request.getDomainId()));
+                .orElseThrow(() -> new DomainNotFoundException(domainId.toString()));
 
         String shortCode = shortCodeGenerator.generate();
 
@@ -63,19 +70,19 @@ public class LinkService {
         return LinkHelpers.toResponse(link);
     }
 
-    public Page<LinkResponse> listLinks(Pageable pageable) {
+    public Page<LinkResponse> listLinks(@NonNull Pageable pageable) {
         return linkRepository.findAll(pageable)
                 .map(LinkHelpers::toResponse);
     }
 
     public LinkResponse getLinkByShortCode(String shortCode) {
-        Link link = linkRepository.findById(shortCode)
+        Link link = linkRepository.findByShortCode(shortCode)
                 .orElseThrow(() -> new LinkNotFoundException(shortCode));
         return LinkHelpers.toResponse(link);
     }
 
     public LinkResponse updateLink(String shortCode, LinkUpdateRequest request) {
-        Link link = linkRepository.findById(shortCode)
+        Link link = linkRepository.findByShortCode(shortCode)
                 .orElseThrow(() -> new LinkNotFoundException(shortCode));
 
         if (request.getOriginalUrl() != null) {
@@ -108,12 +115,21 @@ public class LinkService {
 
     public void deleteLink(String shortCode) {
 
-        Link link = linkRepository.findById(shortCode)
+        Link link = linkRepository.findByShortCode(shortCode)
                 .orElseThrow(() -> new LinkNotFoundException(shortCode));
 
         link.setIsActive(false);
         link.setDeletedAt(Instant.now());
 
         linkRepository.save(link);
+    }
+
+    @NonNull
+    private UUID parseDomainId(@NonNull String domainId) {
+        try {
+            return UUID.fromString(domainId);
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestException("Domain ID inválido.");
+        }
     }
 }

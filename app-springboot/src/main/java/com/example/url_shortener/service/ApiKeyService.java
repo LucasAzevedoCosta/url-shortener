@@ -19,6 +19,7 @@ import com.example.url_shortener.exception.common.HashGenerationException;
 import com.example.url_shortener.helper.ApiKeyGenerator;
 import com.example.url_shortener.repository.ApiKeyRepository;
 
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -80,13 +81,13 @@ public class ApiKeyService {
                 .toList();
     }
 
-    public ApiKeyResponse findById(UUID id) {
+    public ApiKeyResponse findById(@NonNull UUID id) {
         ApiKey key = apiKeyRepository.findById(id)
                 .orElseThrow(ApiKeyNotFoundException::new);
         return toResponse(key);
     }
 
-    public ApiKeyResponse update(UUID id, String name, Integer rateLimit, Boolean active) {
+    public ApiKeyResponse update(@NonNull UUID id, String name, Integer rateLimit, Boolean active) {
 
         ApiKey key = apiKeyRepository.findById(id)
                 .orElseThrow(ApiKeyNotFoundException::new);
@@ -111,7 +112,7 @@ public class ApiKeyService {
         return toResponse(key);
     }
 
-    public void disable(UUID id) {
+    public void disable(@NonNull UUID id) {
         ApiKey key = apiKeyRepository.findById(id)
                 .orElseThrow(ApiKeyNotFoundException::new);
 

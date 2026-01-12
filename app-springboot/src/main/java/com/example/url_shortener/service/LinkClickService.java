@@ -26,7 +26,7 @@ public class LinkClickService {
     @Transactional(readOnly = true)
     public List<LinkClickResponse> listClicks(String linkId, Instant start, Instant end) {
 
-        Link link = linkRepository.findById(linkId)
+        Link link = linkRepository.findByShortCode(linkId)
                 .orElseThrow(() -> new LinkNotFoundException(linkId));
 
         List<LinkClick> clicks
@@ -42,7 +42,7 @@ public class LinkClickService {
     @Transactional(readOnly = true)
     public LinkStatsResponse getLinkStats(String linkId) {
 
-        Link link = linkRepository.findById(linkId)
+        Link link = linkRepository.findByShortCode(linkId)
                 .orElseThrow(() -> new LinkNotFoundException(linkId));
 
         long totalClicks = linkClickRepository.countByLink(link);
